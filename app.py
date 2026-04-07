@@ -8,82 +8,111 @@ from exporter import export_to_bytes
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="JAS Extracter",
-    page_icon="🚢",
     layout="wide"
 )
 
-# ---------------- CUSTOM STYLING ----------------
+# ---------------- DARK THEME CSS ----------------
 st.markdown("""
 <style>
-.main {
-    padding-top: 1rem;
+
+/* Background */
+.stApp {
+    background-color: #0E1117;
+    color: #E6EDF3;
 }
+
+/* Card style */
 .block-container {
     padding-top: 2rem;
 }
+
+/* Headers */
+h1, h2, h3 {
+    color: #E6EDF3;
+}
+
+/* Subtext */
+p {
+    color: #9CA3AF;
+}
+
+/* Buttons */
 .stButton>button {
-    background-color: #1f77b4;
+    background-color: #3B82F6;
     color: white;
-    border-radius: 8px;
-    height: 3em;
-    width: 100%;
+    border-radius: 6px;
+    height: 42px;
+    border: none;
 }
+.stButton>button:hover {
+    background-color: #2563EB;
+}
+
+/* Download button */
 .stDownloadButton>button {
-    background-color: #2ca02c;
+    background-color: #22C55E;
     color: white;
-    border-radius: 8px;
-    height: 3em;
-    width: 100%;
+    border-radius: 6px;
+    height: 42px;
+    border: none;
 }
+.stDownloadButton>button:hover {
+    background-color: #16A34A;
+}
+
+/* Inputs */
+input, textarea {
+    background-color: #161B22 !important;
+    color: #E6EDF3 !important;
+}
+
+/* Dataframe */
+.css-1d391kg {
+    background-color: #161B22;
+}
+
+/* Divider */
+hr {
+    border: 1px solid #1F2937;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------- HEADER ----------------
 st.markdown("""
-    <h1 style='text-align: center;'>🚢 JAS Extracter</h1>
-    <p style='text-align: center; color: grey; font-size:16px;'>
-        Smart Invoice Extraction for Customs Automation
-    </p>
+<h1 style='text-align: center;'>JAS Extracter</h1>
+<p style='text-align: center;'>Smart Invoice Extraction for Customs Automation</p>
 """, unsafe_allow_html=True)
 
 st.divider()
 
-# ---------------- INSTRUCTIONS ----------------
-with st.expander("ℹ️ How to Use"):
-    st.markdown("""
-    1. Upload your invoice Excel file  
-    2. Enter Bill of Lading (optional)  
-    3. Enter UCR (optional)  
-    4. Click **Process Invoice**  
-    5. Download your CSV file  
-    """)
-
-# ---------------- MAIN LAYOUT ----------------
+# ---------------- LAYOUT ----------------
 left, right = st.columns([2, 1])
 
-# LEFT: Upload Section
+# Upload Section
 with left:
-    st.subheader("📁 Upload Invoice")
+    st.subheader("Upload Invoice")
 
     uploaded_file = st.file_uploader(
-        "Drag & drop or browse your Excel file",
+        "Upload Excel File",
         type=["xlsx"]
     )
 
     if uploaded_file:
-        st.success(f"✅ File uploaded: {uploaded_file.name}")
+        st.success("File uploaded successfully")
     else:
-        st.info("Upload an Excel invoice to begin")
+        st.info("Upload an Excel file to begin")
 
-# RIGHT: Input Section
+# Input Section
 with right:
-    st.subheader("⚙️ Shipment Details")
+    st.subheader("Shipment Details")
 
-    bl = st.text_input("Bill of Lading", placeholder="Optional")
-    ucr = st.text_input("UCR Number", placeholder="Optional")
+    bl = st.text_input("Bill of Lading")
+    ucr = st.text_input("UCR Number")
 
     process_btn = st.button(
-        "🚀 Process Invoice",
+        "Process Invoice",
         disabled=not uploaded_file
     )
 
@@ -91,7 +120,7 @@ with right:
 st.divider()
 
 if process_btn:
-    with st.spinner("⏳ Processing your invoice..."):
+    with st.spinner("Processing..."):
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
             tmp.write(uploaded_file.read())
@@ -107,33 +136,32 @@ if process_btn:
             df = result["df"]
             csv_bytes = export_to_bytes(df)
 
-            # SUCCESS MESSAGE
-            st.success("✅ Processing Completed Successfully!")
+            st.success("Processing completed successfully")
 
-            # METRICS
+            # Metrics
             m1, m2, m3 = st.columns(3)
-            m1.metric("📦 Container No", result["container_no"])
-            m2.metric("🧾 Invoice No", result["invoice_no"])
-            m3.metric("📊 Rows Generated", result["row_count"])
+            m1.metric("Container Number", result["container_no"])
+            m2.metric("Invoice Number", result["invoice_no"])
+            m3.metric("Rows Generated", result["row_count"])
 
             st.divider()
 
-            # PREVIEW
-            st.subheader("📄 CSV Preview (Top 10 Rows)")
+            # Preview
+            st.subheader("CSV Preview")
             st.dataframe(df.head(10), use_container_width=True)
 
             st.divider()
 
-            # DOWNLOAD
+            # Download
             st.download_button(
-                label="⬇️ Download CSV",
+                label="Download CSV",
                 data=csv_bytes,
                 file_name=f"{result['container_no']}.csv",
                 mime="text/csv"
             )
 
         except Exception as e:
-            st.error("❌ Processing Failed")
+            st.error("Processing failed")
             st.error(str(e))
 
         finally:
@@ -142,7 +170,7 @@ if process_btn:
 # ---------------- FOOTER ----------------
 st.divider()
 st.markdown("""
-<p style='text-align:center; color: grey;'>
-© 2026 JAS Extracter • Built for Logistics & Export Industry
+<p style='text-align:center; color: #9CA3AF;'>
+© 2026 JAS Extracter • Logistics Automation System
 </p>
 """, unsafe_allow_html=True)
