@@ -15,68 +15,79 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* Background */
+/* MAIN BACKGROUND */
 .stApp {
     background-color: #111827;
     color: #F9FAFB;
 }
 
-/* Section spacing */
-.block-container {
-    padding-top: 2rem;
+/* TEXT */
+h1, h2, h3, h4, h5, h6, label {
+    color: #F9FAFB !important;
 }
 
-/* Headers */
-h1 {
-    text-align: center;
-    font-weight: 600;
-}
-h2, h3 {
-    color: #F9FAFB;
+p, span {
+    color: #9CA3AF !important;
 }
 
-/* Subtext */
-p {
-    color: #9CA3AF;
+/* FILE UPLOADER FIX */
+section[data-testid="stFileUploader"] {
+    background-color: #1F2937;
+    padding: 15px;
+    border-radius: 10px;
 }
 
-/* Buttons */
+section[data-testid="stFileUploader"] label {
+    color: #F9FAFB !important;
+}
+
+section[data-testid="stFileUploader"] div {
+    color: #F9FAFB !important;
+}
+
+/* INPUT BOXES */
+input {
+    background-color: #1F2937 !important;
+    color: #F9FAFB !important;
+    border: 1px solid #374151 !important;
+}
+
+/* BUTTON */
 .stButton>button {
     background-color: #2563EB;
     color: white;
     border-radius: 6px;
     height: 42px;
     border: none;
-    font-weight: 500;
 }
 .stButton>button:hover {
     background-color: #1D4ED8;
 }
 
-/* Download button */
+/* DOWNLOAD BUTTON */
 .stDownloadButton>button {
     background-color: #16A34A;
     color: white;
     border-radius: 6px;
     height: 42px;
-    border: none;
 }
 
-/* Inputs */
-input {
+/* ALERT BOXES */
+.stAlert {
     background-color: #1F2937 !important;
     color: #F9FAFB !important;
+    border-radius: 8px;
 }
 
-/* Divider */
-hr {
-    border: 1px solid #374151;
-}
-
-/* Dataframe */
+/* DATAFRAME */
 [data-testid="stDataFrame"] {
     background-color: #1F2937;
     border-radius: 8px;
+}
+
+/* DIVIDER */
+hr {
+    border: 1px solid #374151;
 }
 
 </style>
