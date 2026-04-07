@@ -15,79 +15,68 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-/* MAIN BACKGROUND */
+/* Background */
 .stApp {
     background-color: #111827;
     color: #F9FAFB;
 }
 
-/* TEXT */
-h1, h2, h3, h4, h5, h6, label {
-    color: #F9FAFB !important;
+/* Section spacing */
+.block-container {
+    padding-top: 2rem;
 }
 
-p, span {
-    color: #9CA3AF !important;
+/* Headers */
+h1 {
+    text-align: center;
+    font-weight: 600;
+}
+h2, h3 {
+    color: #F9FAFB;
 }
 
-/* FILE UPLOADER FIX */
-section[data-testid="stFileUploader"] {
-    background-color: #1F2937;
-    padding: 15px;
-    border-radius: 10px;
+/* Subtext */
+p {
+    color: #9CA3AF;
 }
 
-section[data-testid="stFileUploader"] label {
-    color: #F9FAFB !important;
-}
-
-section[data-testid="stFileUploader"] div {
-    color: #F9FAFB !important;
-}
-
-/* INPUT BOXES */
-input {
-    background-color: #1F2937 !important;
-    color: #F9FAFB !important;
-    border: 1px solid #374151 !important;
-}
-
-/* BUTTON */
+/* Buttons */
 .stButton>button {
     background-color: #2563EB;
     color: white;
     border-radius: 6px;
     height: 42px;
     border: none;
+    font-weight: 500;
 }
 .stButton>button:hover {
     background-color: #1D4ED8;
 }
 
-/* DOWNLOAD BUTTON */
+/* Download button */
 .stDownloadButton>button {
     background-color: #16A34A;
     color: white;
     border-radius: 6px;
     height: 42px;
+    border: none;
 }
 
-/* ALERT BOXES */
-.stAlert {
+/* Inputs */
+input {
     background-color: #1F2937 !important;
     color: #F9FAFB !important;
-    border-radius: 8px;
 }
 
-/* DATAFRAME */
+/* Divider */
+hr {
+    border: 1px solid #374151;
+}
+
+/* Dataframe */
 [data-testid="stDataFrame"] {
     background-color: #1F2937;
     border-radius: 8px;
-}
-
-/* DIVIDER */
-hr {
-    border: 1px solid #374151;
 }
 
 </style>
