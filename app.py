@@ -11,24 +11,28 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------- DARK THEME CSS ----------------
+# ---------------- CLEAN DARK THEME ----------------
 st.markdown("""
 <style>
 
 /* Background */
 .stApp {
-    background-color: #0E1117;
-    color: #E6EDF3;
+    background-color: #111827;
+    color: #F9FAFB;
 }
 
-/* Card style */
+/* Section spacing */
 .block-container {
     padding-top: 2rem;
 }
 
 /* Headers */
-h1, h2, h3 {
-    color: #E6EDF3;
+h1 {
+    text-align: center;
+    font-weight: 600;
+}
+h2, h3 {
+    color: #F9FAFB;
 }
 
 /* Subtext */
@@ -38,42 +42,41 @@ p {
 
 /* Buttons */
 .stButton>button {
-    background-color: #3B82F6;
+    background-color: #2563EB;
     color: white;
     border-radius: 6px;
     height: 42px;
     border: none;
+    font-weight: 500;
 }
 .stButton>button:hover {
-    background-color: #2563EB;
+    background-color: #1D4ED8;
 }
 
 /* Download button */
 .stDownloadButton>button {
-    background-color: #22C55E;
+    background-color: #16A34A;
     color: white;
     border-radius: 6px;
     height: 42px;
     border: none;
 }
-.stDownloadButton>button:hover {
-    background-color: #16A34A;
-}
 
 /* Inputs */
-input, textarea {
-    background-color: #161B22 !important;
-    color: #E6EDF3 !important;
-}
-
-/* Dataframe */
-.css-1d391kg {
-    background-color: #161B22;
+input {
+    background-color: #1F2937 !important;
+    color: #F9FAFB !important;
 }
 
 /* Divider */
 hr {
-    border: 1px solid #1F2937;
+    border: 1px solid #374151;
+}
+
+/* Dataframe */
+[data-testid="stDataFrame"] {
+    background-color: #1F2937;
+    border-radius: 8px;
 }
 
 </style>
@@ -81,7 +84,7 @@ hr {
 
 # ---------------- HEADER ----------------
 st.markdown("""
-<h1 style='text-align: center;'>JAS Extracter</h1>
+<h1>JAS Extracter</h1>
 <p style='text-align: center;'>Smart Invoice Extraction for Customs Automation</p>
 """, unsafe_allow_html=True)
 
@@ -94,10 +97,7 @@ left, right = st.columns([2, 1])
 with left:
     st.subheader("Upload Invoice")
 
-    uploaded_file = st.file_uploader(
-        "Upload Excel File",
-        type=["xlsx"]
-    )
+    uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
 
     if uploaded_file:
         st.success("File uploaded successfully")
@@ -111,16 +111,13 @@ with right:
     bl = st.text_input("Bill of Lading")
     ucr = st.text_input("UCR Number")
 
-    process_btn = st.button(
-        "Process Invoice",
-        disabled=not uploaded_file
-    )
+    process_btn = st.button("Process Invoice", disabled=not uploaded_file)
 
 # ---------------- PROCESS ----------------
 st.divider()
 
 if process_btn:
-    with st.spinner("Processing..."):
+    with st.spinner("Processing invoice..."):
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
             tmp.write(uploaded_file.read())
