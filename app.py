@@ -7,167 +7,98 @@ from exporter import export_to_bytes
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
-    page_title="JAS Extracter",
+    page_title="Invoice Processor",
+    page_icon="📊",
     layout="wide"
 )
 
-# ---------------- CLEAN DARK THEME ----------------
-st.markdown("""
-<style>
-
-/* Background */
-.stApp {
-    background-color: #111827;
-    color: #F9FAFB;
-}
-
-/* Section spacing */
-.block-container {
-    padding-top: 2rem;
-}
-
-/* Headers */
-h1 {
-    text-align: center;
-    font-weight: 600;
-}
-h2, h3 {
-    color: #F9FAFB;
-}
-
-/* Subtext */
-p {
-    color: #9CA3AF;
-}
-
-/* Buttons */
-.stButton>button {
-    background-color: #2563EB;
-    color: white;
-    border-radius: 6px;
-    height: 42px;
-    border: none;
-    font-weight: 500;
-}
-.stButton>button:hover {
-    background-color: #1D4ED8;
-}
-
-/* Download button */
-.stDownloadButton>button {
-    background-color: #16A34A;
-    color: white;
-    border-radius: 6px;
-    height: 42px;
-    border: none;
-}
-
-/* Inputs */
-input {
-    background-color: #1F2937 !important;
-    color: #F9FAFB !important;
-}
-
-/* Divider */
-hr {
-    border: 1px solid #374151;
-}
-
-/* Dataframe */
-[data-testid="stDataFrame"] {
-    background-color: #1F2937;
-    border-radius: 8px;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
 # ---------------- HEADER ----------------
 st.markdown("""
-<h1>JAS Extracter</h1>
-<p style='text-align: center;'>Smart Invoice Extraction for Customs Automation</p>
+    <h1 style='text-align: center;'>📊 Invoice to Customs CSV Converter</h1>
+    <p style='text-align: center; color: grey;'>
+        Convert Excel invoices into 82-column Dutch customs CSV format
+    </p>
 """, unsafe_allow_html=True)
 
 st.divider()
 
-# ---------------- LAYOUT ----------------
-left, right = st.columns([2, 1])
+# ---------------- MAIN LAYOUT ----------------
+col1, col2 = st.columns([2, 1])
 
-# Upload Section
-with left:
-    st.subheader("Upload Invoice")
+# LEFT SIDE (UPLOAD + PREVIEW)
+with col1:
+    st.subheader("📁 Upload Invoice")
 
-    uploaded_file = st.file_uploader("Upload Excel File", type=["xlsx"])
+    uploaded_file = st.file_uploader(
+        "Upload your Excel file",
+        type=["xlsx"]
+    )
 
     if uploaded_file:
-        st.success("File uploaded successfully")
-    else:
-        st.info("Upload an Excel file to begin")
+        st.success(f"✅ {uploaded_file.name} uploaded successfully")
 
-# Input Section
-with right:
-    st.subheader("Shipment Details")
+# RIGHT SIDE (INPUTS)
+with col2:
+    st.subheader("⚙️ Input Details")
 
-    bl = st.text_input("Bill of Lading")
-    ucr = st.text_input("UCR Number")
+    bl = st.text_input("Bill of Lading (BL)", placeholder="Enter BL number")
+    ucr = st.text_input("UCR Number", placeholder="Enter UCR")
 
-    process_btn = st.button("Process Invoice", disabled=not uploaded_file)
+    process_btn = st.button("🚀 Process Invoice", use_container_width=True)
 
 # ---------------- PROCESS ----------------
 st.divider()
 
 if process_btn:
-    with st.spinner("Processing invoice..."):
+    if not uploaded_file:
+        st.error("❌ Please upload an Excel file first")
+    else:
+        with st.spinner("⏳ Processing invoice... Please wait"):
 
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
-            tmp.write(uploaded_file.read())
-            tmp_path = tmp.name
+            # Save temp file
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
+                tmp.write(uploaded_file.read())
+                tmp_path = tmp.name
 
-        try:
-            result = process_invoice(
-                file_path=tmp_path,
-                bill_of_lading=bl,
-                ucr=ucr
-            )
+            try:
+                result = process_invoice(
+                    file_path=tmp_path,
+                    bill_of_lading=bl,
+                    ucr=ucr
+                )
 
-            df = result["df"]
-            csv_bytes = export_to_bytes(df)
+                csv_bytes = export_to_bytes(result["df"])
 
-            st.success("Processing completed successfully")
+                # ---------------- SUCCESS ----------------
+                st.success("✅ Processing Completed Successfully!")
 
-            # Metrics
-            m1, m2, m3 = st.columns(3)
-            m1.metric("Container Number", result["container_no"])
-            m2.metric("Invoice Number", result["invoice_no"])
-            m3.metric("Rows Generated", result["row_count"])
+                # METRICS
+                m1, m2, m3 = st.columns(3)
+                m1.metric("📦 Container No", result["container_no"])
+                m2.metric("🧾 Invoice No", result["invoice_no"])
+                m3.metric("📊 Rows Generated", result["row_count"])
 
-            st.divider()
+                st.divider()
 
-            # Preview
-            st.subheader("CSV Preview")
-            st.dataframe(df.head(10), use_container_width=True)
+                # DOWNLOAD
+                st.download_button(
+                    label="⬇️ Download CSV File",
+                    data=csv_bytes,
+                    file_name=f"{result['container_no']}.csv",
+                    mime="text/csv",
+                    use_container_width=True
+                )
 
-            st.divider()
+            except Exception as e:
+                st.error("❌ Processing Failed")
+                st.error(str(e))
 
-            # Download
-            st.download_button(
-                label="Download CSV",
-                data=csv_bytes,
-                file_name=f"{result['container_no']}.csv",
-                mime="text/csv"
-            )
-
-        except Exception as e:
-            st.error("Processing failed")
-            st.error(str(e))
-
-        finally:
-            os.remove(tmp_path)
+            finally:
+                os.remove(tmp_path)
 
 # ---------------- FOOTER ----------------
 st.divider()
-st.markdown("""
-<p style='text-align:center; color: #9CA3AF;'>
-© 2026 JAS Extracter • Logistics Automation System
-</p>
-""", unsafe_allow_html=True)
+st.markdown(
+    "<p style='text-align:center; color: grey;'>Built for Customs Automation • Professional Tool</p>",
+    unsafe_allow_html=True
+)
