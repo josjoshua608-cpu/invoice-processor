@@ -84,6 +84,15 @@ if process_btn:
                 # ✅ ADDED: Editable Preview
                 st.subheader("📊 Preview & Edit Data")
 
+                # Remove duplicate columns (keep first occurrence)
+clean_df = st.session_state.original_df.loc[:, ~st.session_state.original_df.columns.duplicated()]
+
+edited_df = st.data_editor(
+    clean_df,
+    use_container_width=True,
+    num_rows="dynamic"
+)
+
                 edited_df = st.data_editor(
                     st.session_state.original_df,
                     use_container_width=True,
