@@ -47,17 +47,6 @@ def _safe_filename(output_dir: Path, container_no: str) -> Path:
         counter += 1
 
 
-def _fix_artikelcode(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Ensure Artikelcode column is EMPTY as required by Fiton.
-    Does NOT modify original DataFrame structure.
-    """
-    if "Artikelcode" in df.columns:
-        df = df.copy()
-        df["Artikelcode"] = ""   # ✅ Force empty
-    return df
-
-
 def export_to_file(
     df: pd.DataFrame,
     container_no: str,
@@ -72,9 +61,6 @@ def export_to_file(
     file_path = _safe_filename(out_dir, container_no)
 
     try:
-        # ✅ APPLY FIX HERE (ONLY CHANGE)
-        df = _fix_artikelcode(df)
-
         df.to_csv(
             file_path,
             index=False,
@@ -89,19 +75,11 @@ def export_to_file(
 
 def export_to_string(df: pd.DataFrame) -> str:
     buffer = io.StringIO()
-
-    # ✅ APPLY FIX HERE ALSO
-    df = _fix_artikelcode(df)
-
     df.to_csv(buffer, index=False, lineterminator="\n")
     return buffer.getvalue()
 
 
 def export_to_bytes(df: pd.DataFrame, encoding: str = DEFAULT_ENCODING) -> bytes:
     buffer = io.StringIO()
-
-    # ✅ APPLY FIX HERE ALSO
-    df = _fix_artikelcode(df)
-
     df.to_csv(buffer, index=False, lineterminator="\n")
     return buffer.getvalue().encode(encoding, errors="replace")
