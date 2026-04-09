@@ -67,7 +67,7 @@ if process_btn:
                     ucr=ucr
                 )
 
-                # ✅ ADDED: store original df
+                # Store original dataframe
                 st.session_state.original_df = result["df"]
 
                 # ---------------- SUCCESS ----------------
@@ -81,31 +81,24 @@ if process_btn:
 
                 st.divider()
 
-                # ✅ ADDED: Editable Preview
+                # ---------------- PREVIEW ----------------
                 st.subheader("📊 Preview & Edit Data")
 
-                # Remove duplicate columns (keep first occurrence)
-clean_df = st.session_state.original_df.loc[:, ~st.session_state.original_df.columns.duplicated()]
-
-edited_df = st.data_editor(
-    clean_df,
-    use_container_width=True,
-    num_rows="dynamic"
-)
+                # ✅ FIX: Remove duplicate columns ONLY for preview
+                clean_df = st.session_state.original_df.loc[:, ~st.session_state.original_df.columns.duplicated()]
 
                 edited_df = st.data_editor(
-                    st.session_state.original_df,
+                    clean_df,
                     use_container_width=True,
                     num_rows="dynamic"
                 )
 
-                # ✅ ADDED: store edited df
+                # Store edited version
                 st.session_state.final_df = edited_df
 
-                # ✅ CHANGED: use edited df for export
+                # ---------------- EXPORT ----------------
                 csv_bytes = export_to_bytes(st.session_state.final_df)
 
-                # DOWNLOAD
                 st.download_button(
                     label="⬇️ Download CSV File",
                     data=csv_bytes,
