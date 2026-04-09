@@ -103,6 +103,8 @@ if st.session_state.processed:
     # Remove duplicate columns ONLY for preview
     clean_df = st.session_state.original_df.loc[:, ~st.session_state.original_df.columns.duplicated()]
 
+    clean_df["Artikelcode"] = ""
+
     edited_df = st.data_editor(
         clean_df,
         use_container_width=True,
