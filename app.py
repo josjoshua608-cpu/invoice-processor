@@ -67,7 +67,8 @@ if process_btn:
                     ucr=ucr
                 )
 
-                csv_bytes = export_to_bytes(result["df"])
+                # ✅ ADDED: store original df
+                st.session_state.original_df = result["df"]
 
                 # ---------------- SUCCESS ----------------
                 st.success("✅ Processing Completed Successfully!")
@@ -79,6 +80,21 @@ if process_btn:
                 m3.metric("📊 Rows Generated", result["row_count"])
 
                 st.divider()
+
+                # ✅ ADDED: Editable Preview
+                st.subheader("📊 Preview & Edit Data")
+
+                edited_df = st.data_editor(
+                    st.session_state.original_df,
+                    use_container_width=True,
+                    num_rows="dynamic"
+                )
+
+                # ✅ ADDED: store edited df
+                st.session_state.final_df = edited_df
+
+                # ✅ CHANGED: use edited df for export
+                csv_bytes = export_to_bytes(st.session_state.final_df)
 
                 # DOWNLOAD
                 st.download_button(
