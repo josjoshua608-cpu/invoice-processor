@@ -35,10 +35,6 @@ class ExporterError(Exception):
 
 
 def _safe_filename(output_dir: Path, container_no: str) -> Path:
-    """
-    Return a Path that does not yet exist, following the VBA naming
-    convention:  base.csv, base_2.csv, base_3.csv …
-    """
     base = output_dir / f"{container_no}.csv"
     if not base.exists():
         return base
@@ -51,25 +47,22 @@ def _safe_filename(output_dir: Path, container_no: str) -> Path:
         counter += 1
 
 
+def _fix_artikelcode(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Ensure Artikelcode column is EMPTY as required by Fiton.
+    Does NOT modify original DataFrame structure.
+    """
+    if "Artikelcode" in df.columns:
+        df = df.copy()
+        df["Artikelcode"] = ""   # ✅ Force empty
+    return df
+
+
 def export_to_file(
     df: pd.DataFrame,
     container_no: str,
     output_dir: str | Path = "output",
 ) -> Path:
-    """
-    Write the DataFrame to a CSV file on disk.
-
-    Args:
-        df:            82-column DataFrame produced by csv_mapper.
-        container_no:  Container number used as the base filename.
-        output_dir:    Directory to write the file into (created if absent).
-
-    Returns:
-        Path of the written file.
-
-    Raises:
-        ExporterError: On I/O or encoding failure.
-    """
     if not container_no:
         raise ExporterError("Container number is empty – cannot determine output filename.")
 
@@ -79,6 +72,9 @@ def export_to_file(
     file_path = _safe_filename(out_dir, container_no)
 
     try:
+        # ✅ APPLY FIX HERE (ONLY CHANGE)
+        df = _fix_artikelcode(df)
+
         df.to_csv(
             file_path,
             index=False,
@@ -92,31 +88,20 @@ def export_to_file(
 
 
 def export_to_string(df: pd.DataFrame) -> str:
-    """
-    Return the CSV as a UTF-8 string (for web API / in-memory use).
-
-    Args:
-        df: 82-column DataFrame.
-
-    Returns:
-        CSV content as a Python string.
-    """
     buffer = io.StringIO()
+
+    # ✅ APPLY FIX HERE ALSO
+    df = _fix_artikelcode(df)
+
     df.to_csv(buffer, index=False, lineterminator="\n")
     return buffer.getvalue()
 
 
 def export_to_bytes(df: pd.DataFrame, encoding: str = DEFAULT_ENCODING) -> bytes:
-    """
-    Return the CSV as raw bytes (for HTTP response streaming).
-
-    Args:
-        df:       82-column DataFrame.
-        encoding: Target encoding (defaults to latin-1).
-
-    Returns:
-        Encoded CSV bytes.
-    """
     buffer = io.StringIO()
+
+    # ✅ APPLY FIX HERE ALSO
+    df = _fix_artikelcode(df)
+
     df.to_csv(buffer, index=False, lineterminator="\n")
     return buffer.getvalue().encode(encoding, errors="replace")
