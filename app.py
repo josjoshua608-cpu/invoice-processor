@@ -49,13 +49,16 @@ with col2:
 # ---------------- PROCESS ----------------
 st.divider()
 
+# ✅ ADDED: persistent state flags
+if "processed" not in st.session_state:
+    st.session_state.processed = False
+
 if process_btn:
     if not uploaded_file:
         st.error("❌ Please upload an Excel file first")
     else:
         with st.spinner("⏳ Processing invoice... Please wait"):
 
-            # Save temp file
             with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
                 tmp.write(uploaded_file.read())
                 tmp_path = tmp.name
@@ -67,45 +70,12 @@ if process_btn:
                     ucr=ucr
                 )
 
-                # Store original dataframe
+                # ✅ STORE EVERYTHING IN SESSION
+                st.session_state.processed = True
                 st.session_state.original_df = result["df"]
-
-                # ---------------- SUCCESS ----------------
-                st.success("✅ Processing Completed Successfully!")
-
-                # METRICS
-                m1, m2, m3 = st.columns(3)
-                m1.metric("📦 Container No", result["container_no"])
-                m2.metric("🧾 Invoice No", result["invoice_no"])
-                m3.metric("📊 Rows Generated", result["row_count"])
-
-                st.divider()
-
-                # ---------------- PREVIEW ----------------
-                st.subheader("📊 Preview & Edit Data")
-
-                # ✅ FIX: Remove duplicate columns ONLY for preview
-                clean_df = st.session_state.original_df.loc[:, ~st.session_state.original_df.columns.duplicated()]
-
-                edited_df = st.data_editor(
-                    clean_df,
-                    use_container_width=True,
-                    num_rows="dynamic"
-                )
-
-                # Store edited version
-                st.session_state.final_df = edited_df
-
-                # ---------------- EXPORT ----------------
-                csv_bytes = export_to_bytes(st.session_state.final_df)
-
-                st.download_button(
-                    label="⬇️ Download CSV File",
-                    data=csv_bytes,
-                    file_name=f"{result['container_no']}.csv",
-                    mime="text/csv",
-                    use_container_width=True
-                )
+                st.session_state.container_no = result["container_no"]
+                st.session_state.invoice_no = result["invoice_no"]
+                st.session_state.row_count = result["row_count"]
 
             except Exception as e:
                 st.error("❌ Processing Failed")
@@ -113,6 +83,45 @@ if process_btn:
 
             finally:
                 os.remove(tmp_path)
+
+# ✅ SHOW UI IF ALREADY PROCESSED (THIS FIXES DISAPPEAR ISSUE)
+if st.session_state.processed:
+
+    st.success("✅ Processing Completed Successfully!")
+
+    # METRICS
+    m1, m2, m3 = st.columns(3)
+    m1.metric("📦 Container No", st.session_state.container_no)
+    m2.metric("🧾 Invoice No", st.session_state.invoice_no)
+    m3.metric("📊 Rows Generated", st.session_state.row_count)
+
+    st.divider()
+
+    # ---------------- PREVIEW ----------------
+    st.subheader("📊 Preview & Edit Data")
+
+    # Remove duplicate columns ONLY for preview
+    clean_df = st.session_state.original_df.loc[:, ~st.session_state.original_df.columns.duplicated()]
+
+    edited_df = st.data_editor(
+        clean_df,
+        use_container_width=True,
+        num_rows="dynamic"
+    )
+
+    # store edited version
+    st.session_state.final_df = edited_df
+
+    # ---------------- EXPORT ----------------
+    csv_bytes = export_to_bytes(st.session_state.final_df)
+
+    st.download_button(
+        label="⬇️ Download CSV File",
+        data=csv_bytes,
+        file_name=f"{st.session_state.container_no}.csv",
+        mime="text/csv",
+        use_container_width=True
+    )
 
 # ---------------- FOOTER ----------------
 st.divider()
