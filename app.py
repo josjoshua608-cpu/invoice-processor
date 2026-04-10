@@ -2,7 +2,7 @@ import streamlit as st
 import tempfile
 import os
 
-from main import process_invoice
+from main import run_pipeline
 from exporter import export_to_bytes
 
 # ---------------- PAGE CONFIG ----------------
