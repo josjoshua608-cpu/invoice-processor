@@ -26,8 +26,8 @@ h1 { font-size: 34px !important; font-weight: 700; color: #1f2937; }
 # 👤 HARDCODED USERS  ← Change these!
 # ─────────────────────────────────────────────
 USERS = {
-    "admin": "admin123",
-    "user1": "password1",
+    "ashok": "ashok123",
+    "joshua": "joshua123",
 }
 
 # ---------------- SESSION INIT ----------------
